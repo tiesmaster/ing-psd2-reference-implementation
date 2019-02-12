@@ -1,0 +1,23 @@
+reqDate=`LC_TIME=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S GMT"`
+
+httpMethod="post"
+reqPath="/oauth2/token"
+
+body="grant_type=client_credentials&scope=greetings%3Aview"
+digest=$(echo -n ${body} | openssl dgst -binary -sha256 | openssl base64)
+
+reqId=`uuidgen`
+
+signingString="(request-target): ${httpMethod} ${reqPath} date: ${reqDate} digest: SHA-256=${digest} x-ing-reqid: ${reqId}"
+
+signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./http.key -passin "pass:jtkirk01" | openssl base64 -A`
+
+curl -v -X POST --cert tls_public.crt --key tls.key \
+-H "Date: ${reqDate}" \
+-H "Digest: SHA-256=${digest}" \
+-H "X-ING-ReqID: ${reqId}" \
+-H "Authorization: Signature keyId=\"72e7c36f-9ef1-444b-938c-8af9fa2c9fff\",algorithm=\"rsa-sha256\",headers=\"(request-target) date digest x-ing-reqid\",signature=\"${signature}\"" \
+-H "Content-Type: application/x-www-form-urlencoded" \
+-d ${body} \
+https://api.ing.com/oauth2/token
+
