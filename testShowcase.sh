@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 reqDate=`LC_TIME=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S GMT"`
 
+clientID="72e7c36f-9ef1-444b-938c-8af9fa2c9fff"
+
 httpMethod="post"
 reqPath="/oauth2/token"
 
@@ -18,11 +20,11 @@ signingString="${signingString1}"$'\n'"${signingString2}"$'\n'"${signingString3}
 
 signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./http.key -passin "pass:jtkirk01" | openssl base64 -A`
 
-response=`curl -X POST --cert tls_public.crt --key tls.key \
+response=`curl -X POST --silent --cert tls_public.crt --key tls.key \
 -H "Date: ${reqDate}" \
 -H "Digest: SHA-256=${digest}" \
 -H "X-ING-ReqID: ${reqId}" \
--H "Authorization: Signature keyId=\"72e7c36f-9ef1-444b-938c-8af9fa2c9fff\",algorithm=\"rsa-sha256\",headers=\"(request-target) date digest x-ing-reqid\",signature=\"${signature}\"" \
+-H "Authorization: Signature keyId=\"${clientID}\",algorithm=\"rsa-sha256\",headers=\"(request-target) date digest x-ing-reqid\",signature=\"${signature}\"" \
 -H "Content-Type: application/x-www-form-urlencoded" \
 -d ${body} \
 https://api.ing.com/oauth2/token`
@@ -31,7 +33,6 @@ reqDate=`LC_TIME=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S GMT"`
 
 httpMethod="get"
 reqPath="/greetings/single"
-clientID="72e7c36f-9ef1-444b-938c-8af9fa2c9fff"
 
 body=""
 digest=$(echo -n ${body} | openssl dgst -binary -sha256 | openssl base64)
@@ -49,7 +50,7 @@ signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./http.key -pa
 
 accessToken=$(echo ${response} | jq --raw-output '.access_token')
 
-curl -i -X GET --cert tls_public.crt --key tls.key \
+response2=`curl -X GET --silent --cert tls_public.crt --key tls.key \
 -H "Date: ${reqDate}" \
 -H "Digest: SHA-256=${digest}" \
 -H "X-ING-ReqID: ${reqId}" \
@@ -57,5 +58,10 @@ curl -i -X GET --cert tls_public.crt --key tls.key \
 -H "Signature: keyId=\"${clientID}\",algorithm=\"rsa-sha256\",headers=\"(request-target) date digest x-ing-reqid\",signature=\"${signature}\"" \
 -H "Content-Length: 0" \
 -H "Accept: application/json" \
-https://api.ing.com/greetings/single
+https://api.ing.com/greetings/single`  2> /dev/null
 
+message=$(echo ${response2} | jq --raw-output '.message')
+id=$(echo ${response2} | jq --raw-output '.id')
+messageTimestamp=$(echo ${response2} | jq --raw-output '.messageTimestamp')
+
+echo $message " at " $messageTimestamp " with id " $id
