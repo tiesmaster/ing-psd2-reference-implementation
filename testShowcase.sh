@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 reqDate=`LC_TIME=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S GMT"`
 
-clientID="72e7c36f-9ef1-444b-938c-8af9fa2c9fff"
+clientID="e77d776b-90af-4684-bebc-521e5b2614dd"
 
 httpMethod="post"
 reqPath="/oauth2/token"
@@ -18,9 +18,9 @@ signingString4="x-ing-reqid: ${reqId}"
 
 signingString="${signingString1}"$'\n'"${signingString2}"$'\n'"${signingString3}"$'\n'"${signingString4}"
 
-signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./http.key -passin "pass:jtkirk01" | openssl base64 -A`
+signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./example_client_signing.key -passin "pass:changeit" | openssl base64 -A`
 
-response=`curl -X POST --silent --cert tls_public.crt --key tls.key \
+response=`curl -X POST --silent --cert example_client_tls.cer --key example_client_tls.key \
 -H "Date: ${reqDate}" \
 -H "Digest: SHA-256=${digest}" \
 -H "X-ING-ReqID: ${reqId}" \
@@ -46,11 +46,11 @@ signingString4="x-ing-reqid: ${reqId}"
 
 signingString="${signingString1}"$'\n'"${signingString2}"$'\n'"${signingString3}"$'\n'"${signingString4}"
 
-signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./http.key -passin "pass:jtkirk01" | openssl base64 -A`
+signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./example_client_signing.key -passin "pass:changeit" | openssl base64 -A`
 
 accessToken=$(echo ${response} | jq --raw-output '.access_token')
 
-response2=`curl -X GET --silent --cert tls_public.crt --key tls.key \
+response2=`curl -X GET --silent --cert example_client_tls.cer --key example_client_tls.key \
 -H "Date: ${reqDate}" \
 -H "Digest: SHA-256=${digest}" \
 -H "X-ING-ReqID: ${reqId}" \
