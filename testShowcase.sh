@@ -50,7 +50,10 @@ signature=`printf "${signingString}" | openssl dgst -sha256 -sign ./example_clie
 
 accessToken=$(echo ${response} | json access_token)
 
-response2=`curl -X GET --silent --cert example_client_tls.cer --key example_client_tls.key \
+echo Access Token:
+echo ${accessToken}
+
+response2=`curl -v -X GET --silent --cert example_client_tls.cer --key example_client_tls.key \
 -H "Date: ${reqDate}" \
 -H "Digest: SHA-256=${digest}" \
 -H "X-ING-ReqID: ${reqId}" \
@@ -60,8 +63,11 @@ response2=`curl -X GET --silent --cert example_client_tls.cer --key example_clie
 -H "Accept: application/json" \
 https://api.sandbox.ing.com/greetings/single`  2> /dev/null
 
-message=$(echo ${response2} | json message)
-id=$(echo ${response2} | json id)
-messageTimestamp=$(echo ${response2} | json messageTimestamp)
+echo Response from /greetings/single
+echo ${response2}
 
-echo $message " at " $messageTimestamp " with id " $id
+# message=$(echo ${response2} | json message)
+# id=$(echo ${response2} | json id)
+# messageTimestamp=$(echo ${response2} | json messageTimestamp)
+
+# echo $message " at " $messageTimestamp " with id " $id
