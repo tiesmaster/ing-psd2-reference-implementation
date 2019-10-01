@@ -27,7 +27,7 @@ response=`curl -X POST --silent --cert example_client_tls.cer --key example_clie
 -H "Authorization: Signature keyId=\"${clientID}\",algorithm=\"rsa-sha256\",headers=\"(request-target) date digest x-ing-reqid\",signature=\"${signature}\"" \
 -H "Content-Type: application/x-www-form-urlencoded" \
 -d ${body} \
-https://api.ing.com/oauth2/token`
+https://api.sandbox.ing.com/oauth2/token`
 
 reqDate=`LC_TIME=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S GMT"`
 
@@ -58,7 +58,7 @@ response2=`curl -X GET --silent --cert example_client_tls.cer --key example_clie
 -H "Signature: keyId=\"${clientID}\",algorithm=\"rsa-sha256\",headers=\"(request-target) date digest x-ing-reqid\",signature=\"${signature}\"" \
 -H "Content-Length: 0" \
 -H "Accept: application/json" \
-https://api.ing.com/greetings/single`  2> /dev/null
+https://api.sandbox.ing.com/greetings/single`  2> /dev/null
 
 message=$(echo ${response2} | json message)
 id=$(echo ${response2} | json id)
